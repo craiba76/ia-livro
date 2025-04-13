@@ -1,0 +1,89 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import * as XLSX from "xlsx";
+
+export default function PlanilhaInteligente() {
+  const [objetivo, setObjetivo] = useState("");
+  const [tipoNegocio, setTipoNegocio] = useState("");
+  const [campos, setCampos] = useState("");
+  const [resultado, setResultado] = useState(null);
+  const [linkPagamento, setLinkPagamento] = useState(null);
+
+  const gerarPlanilha = () => {
+    const sugestao = `Planilha para: ${objetivo}\nTipo de negócio: ${tipoNegocio}\nCampos sugeridos: ${campos || "Data, Descrição, Valor, Categoria"}\n\n📊 A planilha conterá fórmulas automáticas, gráficos visuais e design personalizado com base em sua necessidade.`;
+    setResultado(sugestao);
+    setLinkPagamento("https://pay.hotmart.com/SEU_LINK_REAL"); // Substitua pelo link real
+  };
+
+  const baixarPlanilha = () => {
+    const headers = (campos || "Data,Descrição,Valor,Categoria").split(",").map((h) => h.trim());
+    const data = [headers];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Planilha Inteligente");
+
+    XLSX.writeFile(workbook, `Planilha_${objetivo || "Personalizada"}.xlsx`);
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-center text-blue-600">📊 Criador de Planilhas Inteligentes</h1>
+      <p className="text-center text-gray-500">Organize. Cresça. Vença. – by BHSI Planilhas de Sucesso</p>
+
+      <Card>
+        <CardContent className="space-y-4 p-4">
+          <Input
+            placeholder="Qual o seu objetivo com a planilha? (ex: controlar dívidas)"
+            value={objetivo}
+            onChange={(e) => setObjetivo(e.target.value)}
+          />
+          <Input
+            placeholder="Qual o tipo do seu negócio? (ex: loja de roupas, autônomo)"
+            value={tipoNegocio}
+            onChange={(e) => setTipoNegocio(e.target.value)}
+          />
+          <Textarea
+            placeholder="Quais campos você quer controlar? (opcional)"
+            value={campos}
+            onChange={(e) => setCampos(e.target.value)}
+          />
+          <Button onClick={gerarPlanilha} className="w-full bg-green-500 hover:bg-green-600 text-white">
+            Gerar Plano da Planilha ✅
+          </Button>
+        </CardContent>
+      </Card>
+
+      {resultado && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-green-50 p-4 rounded-2xl shadow-md"
+        >
+          <h2 className="text-xl font-semibold text-green-700 mb-2">Sugestão de Estrutura:</h2>
+          <p className="text-gray-700 whitespace-pre-line">{resultado}</p>
+
+          <div className="mt-4 flex flex-col md:flex-row gap-4">
+            <a
+              href={linkPagamento}
+              target="_blank"
+              className="inline-block bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition text-center"
+            >
+              Finalizar Compra 💰
+            </a>
+            <Button
+              onClick={baixarPlanilha}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            >
+              Baixar Planilha 📥
+            </Button>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
